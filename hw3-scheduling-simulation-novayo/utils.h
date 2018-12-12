@@ -363,7 +363,7 @@ void remove_pid(int pid){
 	if (i == number_of_tasks) {
 		printf("No such pid...\n");
 	} else{
-		if (task[i].status == TASK_READY){
+		if (task[i].status == TASK_READY || task[i].status == TASK_RUNNING){
 			int j=0;
 			if (task[i].priority == 'H'){
 				for (j=Hhead_readyqueue; j<Htail_readyqueue; j++){

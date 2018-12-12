@@ -12,27 +12,9 @@ void hw_suspend(int msec_10){
 	} else if (task[runtask].priority == 'L'){
 		schedule_readyqueue('L');
 	}
-
-	clock_t tmr1, tmr2;
-	tmr1 = clock();
-	while(True){
-		tmr2 = clock();
-		long int currenttime = (long int)((double)(tmr2 - tmr1)/CLOCKS_PER_SEC);
-		long int limit = msec_10*10000;
-		if (currenttime > limit){
-			break;
-		}
-	}
-
-	// When finish
-	task[runtask].status = TASK_READY;
-	if (task[runtask].priority == 'H'){
-		Hreadyqueue[Htail_readyqueue] = task[runtask].pid;
-		Htail_readyqueue++;
-	} else if (task[runtask].priority == 'L'){
-		Lreadyqueue[Ltail_readyqueue] = task[runtask].pid;
-		Ltail_readyqueue++;
-	}
+	task[runtask].waitingtime = msec_10;
+	swapcontext(&task[runtask].context, &go_back_run);
+	printf("esgesfhhdehseah\n");
 	return;
 }
 
@@ -82,6 +64,7 @@ int hw_task_create(char *task_name)
 		task[number_of_tasks].time_quantum = 'S';
 		task[number_of_tasks].priority = 'L';
 		task[number_of_tasks].queueing_time = 0;
+		task[number_of_tasks].waitingtime = 0;
 		getcontext(&task[number_of_tasks].context);
 		task[number_of_tasks].context.uc_stack.ss_sp = malloc(BUFFER);
 		task[number_of_tasks].context.uc_stack.ss_size = BUFFER;
@@ -163,6 +146,7 @@ int main(){
 			else if (!strcmp(task[number_of_tasks].name, "Task5")) makecontext(&task[number_of_tasks].context, task5, 0);
 			else if (!strcmp(task[number_of_tasks].name, "Task6")) makecontext(&task[number_of_tasks].context, task6, 0);
 			task[number_of_tasks].queueing_time = 0;
+			task[number_of_tasks].waitingtime = 0;
 			number_of_tasks++;
 			add_or_not = True;
 		} else if (!strcmp(pch, "remove")) {
@@ -179,7 +163,7 @@ int main(){
 		strcat(enter, "\n");
 	}
 	printf("\n--------------------In Simulation Maode--------------------\n");
-	signal(SIGTSTP, ctrl_z); 
+	
 	printf("simulating...\n");
 	if (first_run == True){
 		init_readyqueue();

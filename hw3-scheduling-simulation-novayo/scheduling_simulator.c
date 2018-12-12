@@ -92,7 +92,7 @@ int hw_task_create(char *task_name)
 int main(){
 
 	getcontext(&TOP);
-	printf("\n--------------------In Shell Mode--------------------\n");
+	//printf("\n--------------------In Shell Mode--------------------\n");
 	signal(SIGTSTP, do_nothing);
 	int add_or_not = False;
 	char enter[BUFFER] = {'\0'};
@@ -162,8 +162,8 @@ int main(){
 		strcat(enter, tmpenter);
 		strcat(enter, "\n");
 	}
-	printf("\n--------------------In Simulation Maode--------------------\n");
-	
+	//printf("\n--------------------In Simulation Maode--------------------\n");
+
 	printf("simulating...\n");
 	if (first_run == True){
 		init_readyqueue();

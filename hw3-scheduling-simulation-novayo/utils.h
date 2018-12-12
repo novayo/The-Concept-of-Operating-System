@@ -6,7 +6,7 @@
 #include <signal.h>
 #include <ucontext.h>
 #include <sys/time.h>
-#define TIME 100
+#define TIME 10
 #define BUFFER 1000000
 #define buffer 100
 #define True 1
@@ -53,52 +53,44 @@ int run_or_not;
 int inttimerstart;
 int __100_10msec = 0;
 void run(){
-	//if (first_run){
-		getcontext(&go_back_run);
-	//}
+	getcontext(&go_back_run);
 	int i=0;
 	if (is_empty_readyqueue('H') == False){
 		for (i=0; i<number_of_tasks; i++){
-			//if (task[i].status == TASK_READY){
-				if (task[i].pid == Hreadyqueue[Hhead_readyqueue]){
-					task[i].status = TASK_RUNNING;
-					runningtask = i;
-					signal(SIGTSTP, ctrl_z); 
-					if (times_for_high_priority_rr_20ms == 1) times_for_high_priority_rr_20ms = 1;
-					else if (task[i].priority == 'L') times_for_high_priority_rr_20ms = 1;
-					break;
-				}
-			//}
+			if (task[i].pid == Hreadyqueue[Hhead_readyqueue]){
+				task[i].status = TASK_RUNNING;
+				runningtask = i;
+				signal(SIGTSTP, ctrl_z); 
+				if (times_for_high_priority_rr_20ms == 1) times_for_high_priority_rr_20ms = 1;
+				else if (task[i].priority == 'L') times_for_high_priority_rr_20ms = 1;
+				break;
+			}
 		}
 	} else if (is_empty_readyqueue('L') == False){
 		for (i=0; i<number_of_tasks; i++){
-			//if (task[i].status == TASK_READY){
-				if (task[i].pid == Lreadyqueue[Lhead_readyqueue]){
-					task[i].status = TASK_RUNNING;
-					runningtask = i;
-					signal(SIGTSTP, ctrl_z); 
-					if (times_for_low_priority_rr_20ms == 1) times_for_low_priority_rr_20ms = 1;
-					else if (task[i].priority == 'L') times_for_low_priority_rr_20ms = 1;
-					break;
-				}
-			//}
+			if (task[i].pid == Lreadyqueue[Lhead_readyqueue]){
+				task[i].status = TASK_RUNNING;
+				runningtask = i;
+				signal(SIGTSTP, ctrl_z); 
+				if (times_for_low_priority_rr_20ms == 1) times_for_low_priority_rr_20ms = 1;
+				else if (task[i].priority == 'L') times_for_low_priority_rr_20ms = 1;
+				break;
+			}
 		}
 	}
-	
+
 	inttimerstart = False;
 	timerstart(TIME); //10ms
 	while (inttimerstart == False);
 	swapcontext(&go_back_run, &task[i].context); //go to func
 	if (is_empty_readyqueue('H') == False){
 		for (i=0; i<number_of_tasks; i++){
-				//if (task[i].status == TASK_READY){
-				if (task[i].pid == Hreadyqueue[Hhead_readyqueue]){
-					task[i].status = TASK_RUNNING;
-					runningtask = i;
-					signal(SIGTSTP, ctrl_z); 
-					if (task[i].priority == 'L') times_for_high_priority_rr_20ms = 1;
-					break;
-				//}
+			if (task[i].pid == Hreadyqueue[Hhead_readyqueue]){
+				task[i].status = TASK_RUNNING;
+				runningtask = i;
+				signal(SIGTSTP, ctrl_z); 
+				if (task[i].priority == 'L') times_for_high_priority_rr_20ms = 1;
+				break;
 			}
 		}
 		swapcontext(&tmp, &task[i].context); //go to func
@@ -106,14 +98,12 @@ void run(){
 		schedule_readyqueue('H');
 	} else if (is_empty_readyqueue('L') == False){
 		for (i=0; i<number_of_tasks; i++){
-			//if (task[i].status == TASK_READY){
-				if (task[i].pid == Lreadyqueue[Lhead_readyqueue]){
-					task[i].status = TASK_RUNNING;
-					runningtask = i;
-					signal(SIGTSTP, ctrl_z); 
-					if (task[i].priority == 'L') times_for_low_priority_rr_20ms = 1;
-					break;
-			//	}
+			if (task[i].pid == Lreadyqueue[Lhead_readyqueue]){
+				task[i].status = TASK_RUNNING;
+				runningtask = i;
+				signal(SIGTSTP, ctrl_z); 
+				if (task[i].priority == 'L') times_for_low_priority_rr_20ms = 1;
+				break;
 			}
 		}
 		swapcontext(&tmp, &task[i].context); //go to func
@@ -127,20 +117,13 @@ void ps();
 void round_robin(){
 	if (inttimerstart == True){
 		signal(SIGTSTP, do_nothing);
-		print_readyqueue();
-		//ps();
-		printf("==========\n");
-		// increase queue time
-		//if (__100_10msec >= 100){
-			int i=0;
-			for (i=0; i<number_of_tasks; i++){
-				if (task[i].status == TASK_READY){
-					task[i].queueing_time++;
-				}
+
+		int i=0;
+		for (i=0; i<number_of_tasks; i++){
+			if (task[i].status == TASK_READY){
+				task[i].queueing_time++;
 			}
-			//__100_10msec = 0;
-		//}
-		//__100_10msec++;
+		}
 
 		// waiting time
 		int k = 0;
@@ -173,8 +156,6 @@ void round_robin(){
 				if (times_for_high_priority_rr_20ms == 0){
 					task[i].status = TASK_READY;
 					schedule_readyqueue('H');
-					//print_readyqueue();
-					//printf("========\n");
 					swapcontext(&task[i].context, &go_back_run);
 				} else if (times_for_high_priority_rr_20ms == 1){
 					times_for_high_priority_rr_20ms = 0;
@@ -182,8 +163,6 @@ void round_robin(){
 			} else if (task[i].time_quantum == 'S'){
 				task[i].status = TASK_READY;
 				schedule_readyqueue('H');
-				//print_readyqueue();
-				//printf("========\n");
 				swapcontext(&task[i].context, &go_back_run);
 			}        
 		} else if (is_empty_readyqueue('L') == False){
@@ -197,8 +176,6 @@ void round_robin(){
 				if (times_for_low_priority_rr_20ms == 0){
 					task[i].status = TASK_READY;
 					schedule_readyqueue('L');
-					//print_readyqueue();
-					//printf("========\n");
 					swapcontext(&task[i].context, &go_back_run);
 				} else if (times_for_low_priority_rr_20ms == 1){
 					times_for_low_priority_rr_20ms = 0;
@@ -206,8 +183,6 @@ void round_robin(){
 			} else if (task[i].time_quantum == 'S'){
 				task[i].status = TASK_READY;
 				schedule_readyqueue('L');
-				//print_readyqueue();
-				//printf("L S========\n");
 				swapcontext(&task[i].context, &go_back_run);
 			}        
 		}
@@ -219,9 +194,7 @@ void round_robin(){
 void init_readyqueue(){
 	// run in simulation -> got how many task in number_of_tasks
 	int i=0;
-	//printf("number_of_tasks = %d\n", number_of_tasks);
 	for (i=0; i<number_of_tasks; i++){
-		//if(task[i].status != TASK_READY) continue;
 		if (task[i].priority == 'H'){
 			Hreadyqueue[i] = task[i].pid;
 			Htail_readyqueue++;
@@ -343,21 +316,19 @@ void uninit_time()
 }
 
 void timerstart(int i){
-	struct itimerval value, ovalue; //(1
+	struct itimerval value, ovalue; 
 	signal(SIGALRM, round_robin);
-	int sec = (i*10000)/1000000;
-	int usec = (i*10000)%1000000;
+	int sec = (i*1000)/1000000;
+	int usec = (i*1000)%1000000;
 	value.it_value.tv_sec = sec;
 	value.it_value.tv_usec = usec;
 	value.it_interval.tv_sec = sec;
 	value.it_interval.tv_usec = usec;
-	setitimer(ITIMER_REAL, &value, &ovalue); //(2)
+	setitimer(ITIMER_REAL, &value, &ovalue);
 }
 
 void ctrl_z(int signal)
 {
-	//printf("Signal %d Received.Kill me if you can\n", signal);
-	//print_readyqueue();
 	pre_number_of_tasks = number_of_tasks;
 	uninit_time();
 	first_run = False;

@@ -221,6 +221,11 @@ void enreadyqueue(){
 
 void schedule_readyqueue(char priority){
 	if (priority == 'H'){
+		if (Hreadyqueue[Hhead_readyqueue] == -1) {
+			Hhead_readyqueue++;
+			schedule_readyqueue('H');
+			return;
+		}
 		if (Hhead_readyqueue == Htail_readyqueue){
 			printf("Hreadyqueue is empty...\n");
 			return;
@@ -238,6 +243,11 @@ void schedule_readyqueue(char priority){
 		Htail_readyqueue++;
 		Hhead_readyqueue++;
 	} else if (priority == 'L'){
+		if (Lreadyqueue[Lhead_readyqueue] == -1) {
+			Lhead_readyqueue++;
+			schedule_readyqueue('L');
+			return;
+		}
 		if (Lhead_readyqueue == Ltail_readyqueue){
 			printf("Lreadyqueue is empty...\n");
 			return;
@@ -336,7 +346,6 @@ void ctrl_z(int signal)
 }
 
 void remove_pid(int pid){
-	printf("In remove_pid(%d)...\n", pid);
 	int i=0;
 	for (i=0; i<number_of_tasks; i++){
 		if (task[i].pid == pid) break;
@@ -344,6 +353,24 @@ void remove_pid(int pid){
 	if (i == number_of_tasks) {
 		printf("No such pid...\n");
 	} else{
+		if (task[i].status == TASK_READY){
+			int j=0;
+			if (task[i].priority == 'H'){
+				for (j=Hhead_readyqueue; j<Htail_readyqueue; j++){
+					if (Hreadyqueue[j] == task[i].pid){
+						Hreadyqueue[j] = -1;
+						break;
+					}
+				}
+			} else if (task[i].priority == 'L'){
+				for (j=Lhead_readyqueue; j<Ltail_readyqueue; j++){
+					if (Lreadyqueue[j] == task[i].pid){
+						Lreadyqueue[j] = -1;
+						break;
+					}
+				}
+			}
+		}
 		task[i].pid = -1;
 		strcpy(task[i].name, "");
 		task[i].status = TASK_TERMINATED;
@@ -351,12 +378,10 @@ void remove_pid(int pid){
 		task[i].priority = '\0';
 		task[i].queueing_time = 0;
 	}
-	printf("End remove_pid()...\n");
 	return;
 }
 
 void ps(){
-	printf("In ps()...\n");
 	int i = 0;
 	printf("number_of_tasks = %d\n", number_of_tasks);
 	for (i=0; i < number_of_tasks; i++){
@@ -374,7 +399,6 @@ void ps(){
 				task[i].priority,
 				task[i].time_quantum); //1 task1 TASK_READY 50 H L
 	}
-	printf("End ps()...\n");
 	return;
 }
 

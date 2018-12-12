@@ -117,7 +117,6 @@ void run(){
 void ps();
 void round_robin(){
 	if (inttimerstart == True){
-		ps();
 		signal(SIGTSTP, do_nothing);
 		int i=0;
 		for (i=0; i<number_of_tasks; i++){

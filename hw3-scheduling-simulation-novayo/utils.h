@@ -6,7 +6,7 @@
 #include <signal.h>
 #include <ucontext.h>
 #include <sys/time.h>
-#define TIME 1000
+#define TIME 10
 #define BUFFER 1000000
 #define buffer 100
 #define True 1

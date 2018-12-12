@@ -6,7 +6,7 @@
 #include <signal.h>
 #include <ucontext.h>
 #include <sys/time.h>
-#define TIME 10
+#define TIME 1000
 #define BUFFER 1000000
 #define buffer 100
 #define True 1
@@ -53,6 +53,7 @@ int run_or_not;
 int inttimerstart;
 int __100_10msec = 0;
 void run(){
+	while(is_empty_readyqueue('H') && is_empty_readyqueue('L'));
 	getcontext(&go_back_run);
 	int i=0;
 	if (is_empty_readyqueue('H') == False){
@@ -116,8 +117,8 @@ void run(){
 void ps();
 void round_robin(){
 	if (inttimerstart == True){
+		ps();
 		signal(SIGTSTP, do_nothing);
-
 		int i=0;
 		for (i=0; i<number_of_tasks; i++){
 			if (task[i].status == TASK_READY){
@@ -269,12 +270,22 @@ void schedule_readyqueue(char priority){
 
 int is_empty_readyqueue(char priority){
 	if (priority == 'H'){
+		if (Hreadyqueue[Hhead_readyqueue] == -1){
+			Hhead_readyqueue++;
+			is_empty_readyqueue('H');
+			return -1;
+		}
 		if (Hhead_readyqueue == Htail_readyqueue){
 			return True;
 		} else{
 			return False;
 		}
 	} else if (priority == 'L'){
+		if (Lreadyqueue[Lhead_readyqueue] == -1){
+			Lhead_readyqueue++;
+			is_empty_readyqueue('L');
+			return -1;
+		}
 		if (Lhead_readyqueue == Ltail_readyqueue){
 			return True;
 		} else{
@@ -383,7 +394,6 @@ void remove_pid(int pid){
 
 void ps(){
 	int i = 0;
-	printf("number_of_tasks = %d\n", number_of_tasks);
 	for (i=0; i < number_of_tasks; i++){
 		if (task[i].pid == -1) continue; //removed task
 		char status[buffer] = {'\0'};
@@ -395,7 +405,7 @@ void ps(){
 				task[i].pid, 
 				task[i].name, 
 				status,
-				task[i].queueing_time,
+				task[i].queueing_time*10,
 				task[i].priority,
 				task[i].time_quantum); //1 task1 TASK_READY 50 H L
 	}

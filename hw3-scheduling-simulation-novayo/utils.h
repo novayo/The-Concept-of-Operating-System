@@ -26,8 +26,6 @@ typedef struct struct_pcb{
 ucontext_t TOP, go_back_run, tmp;
 int number_of_tasks;
 pcb task[MAX_TASKS];
-int task_waiting_queue[MAX_QUEUE];
-int head_task_waiting;
 int Hreadyqueue[MAX_QUEUE];
 int Hhead_readyqueue;
 int Htail_readyqueue;
@@ -258,36 +256,6 @@ int is_empty_readyqueue(char priority){
     } else{
         return -1;
     }
-}
-
-void enwaitingqueue(int taskpid){
-    task[taskpid].status = TASK_WAITING;
-    if (is_empty_readyqueue('H') == False){
-        schedule_readyqueue('H');
-    } else if (is_empty_readyqueue('L') == False){
-        schedule_readyqueue('L');
-    }
-    task_waiting_queue[head_task_waiting] = task[taskpid].pid;
-    head_task_waiting++;
-}
-
-int schedule_waitingqueue(int taskpid){
-    int i=0;
-    for (i=0; i<head_task_waiting; i++){
-        if (task_waiting_queue[i] == -1) continue;
-        if (task_waiting_queue[i] == task[taskpid].pid) break;
-    }
-    if (i == head_task_waiting) return False;
-    task_waiting_queue[i] = -1;
-    task[taskpid].status = TASK_READY;
-    if (is_empty_readyqueue('H') == False){
-        Hreadyqueue[Htail_readyqueue] = task[taskpid].pid;
-        Htail_readyqueue++;
-    } else if (is_empty_readyqueue('L') == False){
-        Lreadyqueue[Ltail_readyqueue] = task[taskpid].pid;
-        Ltail_readyqueue++;
-    }
-    return True;
 }
 
 void print_readyqueue(){

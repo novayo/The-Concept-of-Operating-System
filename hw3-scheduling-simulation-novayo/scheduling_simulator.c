@@ -12,7 +12,7 @@ void hw_suspend(int msec_10){
 	} else if (task[runtask].priority == 'L'){
 		schedule_readyqueue('L');
 	}
-	
+
 	clock_t tmr1, tmr2;
 	tmr1 = clock();
 	while(True){
@@ -56,7 +56,7 @@ void hw_wakeup_pid(int pid){
 int hw_wakeup_taskname(char *task_name){
 	int how_many_tasks_are_waken_up = 0;
 	int i=0;
-	
+
 	for (i=0; i<number_of_tasks; i++){
 		if (!strcmp(task[i].name, task_name)){
 			task[i].status = TASK_READY;
@@ -70,40 +70,40 @@ int hw_wakeup_taskname(char *task_name){
 			how_many_tasks_are_waken_up++;
 		}
 	}
-    return how_many_tasks_are_waken_up;
+	return how_many_tasks_are_waken_up;
 }
 
 int hw_task_create(char *task_name)
 {
-    if (!strcmp(task_name, "Task1") || !strcmp(task_name, "Task2") || !strcmp(task_name, "Task3") || !strcmp(task_name, "Task4") || !strcmp(task_name, "Task5") || !strcmp(task_name, "Task6")) {
-        task[number_of_tasks].pid = number_of_tasks;
-        strcpy(task[number_of_tasks].name, task_name);
-        task[number_of_tasks].status = TASK_READY;
-        task[number_of_tasks].time_quantum = 'S';
-        task[number_of_tasks].priority = 'L';
-        task[number_of_tasks].queueing_time = 0;
-        getcontext(&task[number_of_tasks].context);
-        task[number_of_tasks].context.uc_stack.ss_sp = malloc(BUFFER);
-        task[number_of_tasks].context.uc_stack.ss_size = BUFFER;
-        task[number_of_tasks].context.uc_link = &tmp;
-        if (!strcmp(task[number_of_tasks].name, "Task1")) makecontext(&task[number_of_tasks].context, task1, 0);
+	if (!strcmp(task_name, "Task1") || !strcmp(task_name, "Task2") || !strcmp(task_name, "Task3") || !strcmp(task_name, "Task4") || !strcmp(task_name, "Task5") || !strcmp(task_name, "Task6")) {
+		task[number_of_tasks].pid = number_of_tasks;
+		strcpy(task[number_of_tasks].name, task_name);
+		task[number_of_tasks].status = TASK_READY;
+		task[number_of_tasks].time_quantum = 'S';
+		task[number_of_tasks].priority = 'L';
+		task[number_of_tasks].queueing_time = 0;
+		getcontext(&task[number_of_tasks].context);
+		task[number_of_tasks].context.uc_stack.ss_sp = malloc(BUFFER);
+		task[number_of_tasks].context.uc_stack.ss_size = BUFFER;
+		task[number_of_tasks].context.uc_link = &tmp;
+		if (!strcmp(task[number_of_tasks].name, "Task1")) makecontext(&task[number_of_tasks].context, task1, 0);
 		else if (!strcmp(task[number_of_tasks].name, "Task2")) makecontext(&task[number_of_tasks].context, task2, 0);
 		else if (!strcmp(task[number_of_tasks].name, "Task3")) makecontext(&task[number_of_tasks].context, task3, 0);
 		else if (!strcmp(task[number_of_tasks].name, "Task4")) makecontext(&task[number_of_tasks].context, task4, 0);
 		else if (!strcmp(task[number_of_tasks].name, "Task5")) makecontext(&task[number_of_tasks].context, task5, 0);
 		else if (!strcmp(task[number_of_tasks].name, "Task6")) makecontext(&task[number_of_tasks].context, task6, 0);
 
-        if (task[number_of_tasks].priority == 'H') {
-            Hreadyqueue[Htail_readyqueue] = task[number_of_tasks].pid;
-            Htail_readyqueue++;
-        } else if (task[number_of_tasks].priority == 'L') {
-            Lreadyqueue[Ltail_readyqueue] = task[number_of_tasks].pid;
-            Ltail_readyqueue++;
-        }
-        return number_of_tasks++; // regard as pid
-    } else {
-        return -1;
-    }
+		if (task[number_of_tasks].priority == 'H') {
+			Hreadyqueue[Htail_readyqueue] = task[number_of_tasks].pid;
+			Htail_readyqueue++;
+		} else if (task[number_of_tasks].priority == 'L') {
+			Lreadyqueue[Ltail_readyqueue] = task[number_of_tasks].pid;
+			Ltail_readyqueue++;
+		}
+		return number_of_tasks++; // regard as pid
+	} else {
+		return -1;
+	}
 }
 
 int main(){
